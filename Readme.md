@@ -14,7 +14,7 @@ state save location.
 # Requirements
 
 This script expects a certain data structure in the output of squeue. We have 
-noticed during development that squeue --json does not distinguish between 
+noticed during development that `squeue --json` does not distinguish between 
 individual CPUs in the resources used and in the output the allocation of CPU 1 
 and 2 is considered to be the same. However, this may be different for shared 
 nodes if multiple jobs request a certain set of resources.
@@ -30,7 +30,7 @@ as well.
 
 The easiest way is to clone the Git repository. This way you always get the latest updates. 
 
-    git clone https://github.com/pc2/cc-slurm-sync
+    git clone https://github.com/pc2/cc-slurm-sync.git
     cd cc-slurm-sync
 
 ## Configuration file
@@ -55,19 +55,19 @@ This part describes accelerators which might be used in jobs. The format is as f
 	"accelerators" : {
 		"n2gpu" : {
 			"0": "00000000:03:00.0",
-            "1": "00000000:44:00.0",
-            "2": "00000000:84:00.0",
-            "3": "00000000:C4:00.0"
+			"1": "00000000:44:00.0",
+			"2": "00000000:84:00.0",
+			"3": "00000000:C4:00.0"
 		},
 		"n2dgx" : {
 			"0": "00000000:07:00.0",
-            "1": "00000000:0F:00.0",
-            "2": "00000000:47:00.0",
-            "3": "00000000:4E:00.0",
-            "4": "00000000:87:00.0",
-            "5": "00000000:90:00.0",
-            "6": "00000000:B7:00.0",
-            "7": "00000000:BD:00.0"
+			"1": "00000000:0F:00.0",
+			"2": "00000000:47:00.0",
+			"3": "00000000:4E:00.0",
+			"4": "00000000:87:00.0",
+			"5": "00000000:90:00.0",
+			"6": "00000000:B7:00.0",
+			"7": "00000000:BD:00.0"
 		}
 	},
 
