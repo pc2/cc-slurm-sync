@@ -379,6 +379,12 @@ class SlurmSync:
         # iterate over running jobs and add them to cc if they are still missing there
         if direction in ['both', 'start']:
             for job in self.slurmJobData['jobs']:
+                # Skip this job if the user does not want the metadata of this job to be submitted to ClusterCockpit
+                # The text field admin_comment is used for this. We assume that this field contains a comma seperated 
+                # list of flags.
+                if "disable_cc_submission" in job['admin_comment'].split(','):
+                    print("INFO: Job %s: disable_cc_sumbission is set. Continue with next job" % job['job_id'])
+                    continue
                 # consider only running jobs
                 if job['job_state'] == "RUNNING":
                     if jobid:
