@@ -310,7 +310,7 @@ class SlurmSync:
         else:
             jobsAcctData = self._getAccDataForJob(jobid)['jobs']
             for j in jobsAcctData:
-                if j['steps'][0]['time']['start'] == ccjob['startTime']:
+                if len(j['steps']) > 0 and j['steps'][0]['time']['start'] == ccjob['startTime']:
                     jobAcctData = j
             jobstate = jobAcctData['state']['current'].lower()
             endtime = jobAcctData['time']['end']
