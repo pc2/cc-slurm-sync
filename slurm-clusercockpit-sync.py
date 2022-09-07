@@ -160,13 +160,12 @@ class SlurmSync:
             for i in indexes:
                 acc_id_list.append(ids[nodetype][str(i)])
 
-            print(acc_id_list)
             return acc_id_list
 
         return []
 
     def _ccStartJob(self, job):
-        print("INFO: Crate job %s, user %s, name %s" % (job['job_id'], job['user_name'], job['name']))
+        print("INFO: Crate job %s, user %s, partition %s, name %s" % (job['job_id'], job['user_name'], job['partition'], job['name']))
         nodelist = self._convertNodelist(job['job_resources']['nodes'])
 
         # Exclusive job?
@@ -290,24 +289,25 @@ class SlurmSync:
             if j['jobId'] == jobid:
                 ccjob = j
 
+        jobInSqueue = False
         # check if job is still in squeue data
         for job in self.slurmJobData['jobs']:
             if job['job_id'] == jobid:
+                jobInSqueue = True
                 jobstate = job['job_state'].lower()
                 endtime = job['end_time']
-                if jobstate == 'requeued':
-                    print("Requeued job")
+                if jobstate not in ['running', 'completed', 'failed', 'cancelled', 'stopped', 'timeout', 'preempted', 'out_of_memory' ]:
                     jobstate = 'failed'
 
-                    if int(ccjob['startTime']) >= int(job['end_time']):
-                        print("squeue correction")
-                        # For some reason (needs to get investigated), failed jobs sometimes report 
-                        # an earlier end time in squee than the starting time in CC. If this is the
-                        # case, take the starting time from CC and add ten seconds to the starting 
-                        # time as new end time. Otherwise CC refuses to end the job.
-                        endtime = int(ccjob['startTime']) + 1                    
+                if int(ccjob['startTime']) >= int(job['end_time']):
+                    print("squeue correction")
+                    # For some reason (needs to get investigated), failed jobs sometimes report 
+                    # an earlier end time in squee than the starting time in CC. If this is the
+                    # case, take the starting time from CC and add ten seconds to the starting 
+                    # time as new end time. Otherwise CC refuses to end the job.
+                    endtime = int(ccjob['startTime']) + 1                    
 
-        else:
+        if not jobInSqueue:
             jobsAcctData = self._getAccDataForJob(jobid)['jobs']
             for j in jobsAcctData:
                 if len(j['steps']) > 0 and j['steps'][0]['time']['start'] == ccjob['startTime']:
@@ -315,19 +315,16 @@ class SlurmSync:
             jobstate = jobAcctData['state']['current'].lower()
             endtime = jobAcctData['time']['end']
 
-            if jobstate == "node_fail":
-                jobstate = "failed"
-            if jobstate == "requeued":
-                print("Requeued job")
-                jobstate = "failed"
+            if jobstate not in ['running', 'completed', 'failed', 'cancelled', 'stopped', 'timeout', 'preempted', 'out_of_memory' ]:
+                jobstate = 'failed'
 
-                if int(ccjob['startTime']) >= int(jobAcctData['time']['end']):
-                    print("sacct correction")
-                    # For some reason (needs to get investigated), failed jobs sometimes report 
-                    # an earlier end time in squee than the starting time in CC. If this is the
-                    # case, take the starting time from CC and add ten seconds to the starting 
-                    # time as new end time. Otherwise CC refuses to end the job.
-                    endtime = int(ccjob['startTime']) + 1
+            if int(ccjob['startTime']) >= int(jobAcctData['time']['end']):
+                print("sacct correction")
+                # For some reason (needs to get investigated), failed jobs sometimes report 
+                # an earlier end time in squee than the starting time in CC. If this is the
+                # case, take the starting time from CC and add ten seconds to the starting 
+                # time as new end time. Otherwise CC refuses to end the job.
+                endtime = int(ccjob['startTime']) + 1
 
         data = {
             'jobId' : jobid,
