@@ -39,6 +39,9 @@ Before you start, you have to create a configuration file. You can use
 `config.json`.
 
 ### Confiuration options
+**clustername**
+Type in your clustername here. This value must be the same as the value used in cc-backend to identify the cluster. It might be different to the cluster name used in slurm.
+
 **slurm**
 * `squeue` Path to the squeue binary. Defaults to `/usr/bin/squeue`
 * `sacct` Path to the sacct binary. Defaults to `/usr/bin/sacct`

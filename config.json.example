@@ -1,4 +1,5 @@
 {
+	"clustername" : "yournamehere",
 	"slurm" : {
 		"squeue": "/usr/bin/squeue",
 		"sacct": "/usr/bin/sacct",
