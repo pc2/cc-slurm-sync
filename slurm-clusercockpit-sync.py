@@ -49,9 +49,9 @@ class CCApi:
             return False
 
     def getJobs(self, filter_running=True):
-        url = self.apiurl+"jobs/"
+        url = self.apiurl+"jobs/?cluster="+self.config['clustername']
         if filter_running:
-            url = url+"?state=running"
+            url = url+"&state=running"
         r = requests.get(url, headers=self.headers)
         if r.status_code == 200:
             return r.json()
@@ -215,7 +215,7 @@ class SlurmSync:
         # build payload
         data = {'jobId' : job['job_id'],
             'user' : job['user_name'],
-            'cluster' : job['cluster'],
+            'cluster' : self.config['clustername'],
             'numNodes' : job['node_count'],
             'numHwthreads' : job['cpus'],
             'startTime': job['start_time'],
