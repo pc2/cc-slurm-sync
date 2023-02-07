@@ -45,6 +45,7 @@ Type in your clustername here. This value must be the same as the value used in 
 **slurm**
 * `squeue` Path to the squeue binary. Defaults to `/usr/bin/squeue`
 * `sacct` Path to the sacct binary. Defaults to `/usr/bin/sacct`
+* `scontrol` Path to the scontrol binary. Defaults to `/usr/bin/scontrol`
 * `state_save_location` Statesave location of slurm. This option has no default value and is **mandatory**.
 
 **cc-backend**

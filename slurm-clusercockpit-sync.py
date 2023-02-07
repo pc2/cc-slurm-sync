@@ -89,7 +89,7 @@ class SlurmSync:
     def _exec(self, command):
         process = subprocess.Popen(command, stdout=subprocess.PIPE,stderr=subprocess.PIPE,shell=True)
         output, error = process.communicate()
-        if process.returncode is 0:
+        if process.returncode == 0:
             return output.decode('utf-8')
         else:
             print("Error: ",error)
@@ -209,7 +209,7 @@ class SlurmSync:
 
 
         # get additional info from slurm and add environment
-        command = "scontrol show job %s" % job['job_id']
+        command = "%s show job %s" % (self.config['slurm']['scontrol'], job['job_id'])
         slurminfo = self._exec(command)
         slurminfo = slurminfo + "ENV:\n====\n" + environment
 
@@ -340,7 +340,7 @@ class SlurmSync:
     def _convertNodelist(self, nodelist):
         # Use slurm to convert a nodelist with ranges into a comma separated list of unique nodes
         if re.search(self.config['node_regex'], nodelist):
-            command = "scontrol show hostname %s | paste -d, -s" % nodelist
+            command = "%s show hostname %s | paste -d, -s" % (self.config['slurm']['scontrol'], nodelist)
             retval = self._exec(command).split(',')
             return retval
         else:

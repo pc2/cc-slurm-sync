@@ -3,6 +3,7 @@
 	"slurm" : {
 		"squeue": "/usr/bin/squeue",
 		"sacct": "/usr/bin/sacct",
+		"scontrol": "/usr/bin/scontrol",
 		"state_save_location" : "/var/spool/SLURM/StateSaveLocation"
 	},
 	"cc-backend" : {
