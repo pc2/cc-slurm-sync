@@ -56,7 +56,8 @@ class CCApi:
         if r.status_code == 200:
             return r.json()
         else:
-            return { 'jobs' : []}
+            # If we didn't get valid data, raise exception and die
+            r.raise_for_status()
 
 class SlurmSync:
     slurmJobData = {}
