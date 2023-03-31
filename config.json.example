@@ -28,5 +28,9 @@
 			"7": "00000000:BD:00.0"
 		}
 	},
-	"node_regex" : "^(n2(lcn|cn|fpga|gpu)[\\d{2,4}\\,\\-\\[\\]]+)+$"
+	"node_regex" : "^(n2(lcn|cn|fpga|gpu)[\\d{2,4}\\,\\-\\[\\]]+)+$",
+	"nodes" : {
+		"sockets" : 2,
+		"cores_per_socket" : 64
+	}
 }

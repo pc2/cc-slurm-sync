@@ -245,20 +245,14 @@ class SlurmSync:
             # if a job uses a node exclusive, there are some assigned cpus (used by this job)
             # and some unassigned cpus. In this case, the assigned_cpus are those which have
             # to be monitored, otherwise use the unassigned cpus. 
-            hwthreads = job['job_resources']['allocated_nodes'][str(i)]['cores']
-            cores_assigned = []
-            cores_unassigned = []
-            for k,v in hwthreads.items():
-                if v == "assigned":
-                    cores_assigned.append(int(k))
-                else:
-                    cores_unassigned.append(int(k))
+            sockets = job['job_resources']['allocated_nodes'][i]['sockets']
+            hwthreads = []
+            for socket,cores in sockets.items():
+                for cid, state in cores['cores'].items():
+                    if state == 'allocated':
+                        hwthreads.append(int(cid) + int(socket) * self.config['nodes']['cores_per_socket'])
 
-            if len(cores_assigned) > 0:
-                cores = cores_assigned
-            else:
-                cores = cores_unassigned
-            resources.update({"hwthreads": cores})
+            resources.update({"hwthreads": hwthreads})
 
             # Get allocated GPUs if some are requested
             if len(job['gres_detail']) > 0:
@@ -268,7 +262,6 @@ class SlurmSync:
                 if len(acc_ids) > 0:
                     num_acc = num_acc + len(acc_ids)
                     resources.update({"accelerators" : acc_ids})
-
 
             data['resources'].append(resources)
             i = i + 1
