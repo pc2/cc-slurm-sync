@@ -13,6 +13,21 @@ state save location.
 
 # Requirements
 
+Depending on your slurm version, you have different dependencies.
+
+## Running slurm 22.05
+
+If you run a slurm version later or equal to 22.05, you should be fine. The
+scipt was updated to support openapi 0.0.38 shipped with slurm. This version
+of the openapi supports a correct data structure to determine the allocated
+resources on a node. 
+
+## Running slurm < 22.05
+
+If you are runnning slurm 21.08 or something else lower than 22.05, you have to 
+use the commit with tag "openapi_0.0.37", because the data structure of the 
+json output chaned between 21.08 and 22.05.
+
 This script expects a certain data structure in the output of squeue. We have 
 noticed during development that `squeue --json` does not distinguish between 
 individual CPUs in the resources used and in the output the allocation of CPU 1 
@@ -112,6 +127,10 @@ You will find the four GPUs identified by ids starting at 0. In the second colou
 This option is unique to every cluster system. This regex describes the sytax of the hostnames which are used as computing resources in jobs. \ have to be escaped
 
 Example: `^(n2(lcn|cn|fpga|gpu)[\\d{2,4}\\,\\-\\[\\]]+)+$`
+
+**nodes**
+
+The "cores_per_socket" value is used within the transformation of the slurm data to ClusterCockpit data structure. CC uses rising ids to identify each core. Slurm seperates the cores by socket. So the scipts needs to know, how many cores per socket are available to calculate the cc representation of the allocated resources. 
 
 ## Running the script
 
