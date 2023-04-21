@@ -49,7 +49,7 @@ class CCApi:
             return False
 
     def getJobs(self, filter_running=True):
-        url = self.apiurl+"jobs/?cluster="+self.config['clustername']
+        url = self.apiurl+"jobs/?cluster="+self.config['clustername']+'&items-per-page=10000000'
         if filter_running:
             url = url+"&state=running"
         r = requests.get(url, headers=self.headers)
