@@ -119,7 +119,7 @@ class SlurmSync:
     def _jobRunning(self, jobid):
         for job in self.slurmJobData['jobs']:
             if int(job['job_id']) == int(jobid):
-                if job['job_state'] == 'RUNNING':
+                if job['job_state'] in ['RUNNING', 'COMPLETING']:
                     return True
         return False
 
