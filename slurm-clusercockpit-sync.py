@@ -217,10 +217,10 @@ class SlurmSync:
         data = {'jobId' : job['job_id'],
             'user' : job['user_name'],
             'cluster' : self.config['clustername'],
-            'numNodes' : job['node_count'],
-            'numHwthreads' : job['cpus'],
+            'numNodes' : job['node_count']['number'],
+            'numHwthreads' : job['cpus']['number'],
             'startTime': job['start_time'],
-            'walltime': int(job['time_limit']) * 60,
+            'walltime': int(job['time_limit']['number']) * 60,
             'project': job['account'],
             'partition': job['partition'],
             'exclusive': exclusive,
@@ -233,7 +233,7 @@ class SlurmSync:
             }
 
         # is this part of an array job?
-        if job['array_job_id'] > 0:
+        if job['array_job_id']['set'] and job['array_job_id']['number'] > 0:
             data.update({"arrayJobId" : job['array_job_id']})
 
         i = 0
