@@ -11,16 +11,18 @@ The script has to run on the slurm controller node and needs permissions
 to run the slurm commands squeue and sacct and read data from the slurm
 state save location.
 
-# Requirements
+# Requirements / Branches
 
 Depending on your slurm version, you have different dependencies.
 
-## Running slurm 22.05
+## Running slurm 22.05 and later
 
-If you run a slurm version later or equal to 22.05, you should be fine. The
-scipt was updated to support openapi 0.0.38 shipped with slurm. This version
-of the openapi supports a correct data structure to determine the allocated
-resources on a node. 
+The rest api and its component openapi is changing from version to version.
+Therefore, we decided to create one branch per slurm major versoin. This 
+should help to track the changes according to each slurm version. If you 
+are running slurm version 23.11.02 you have to checkout the branch slurm-23-11.
+The master branch will be the development branch for general functionalities.
+Version specific changes will be merged to the corresponding version branch.
 
 ## Running slurm < 22.05
 
