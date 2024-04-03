@@ -213,14 +213,17 @@ class SlurmSync:
         slurminfo = self._exec(command)
         slurminfo = slurminfo + "ENV:\n====\n" + environment
 
+#        print("JobID",job['job_id'])
+#        print("TimeLimit ",job['time_limit'],"\n")
+#        print("Job:",job)
         # build payload
         data = {'jobId' : job['job_id'],
             'user' : job['user_name'],
             'cluster' : self.config['clustername'],
-            'numNodes' : job['node_count'],
-            'numHwthreads' : job['cpus'],
+            'numNodes' : job['node_count']['number'],
+            'numHwthreads' : job['cpus']['number'],
             'startTime': job['start_time'],
-            'walltime': int(job['time_limit']) * 60,
+            'walltime': int(job['time_limit']['number']) * 60,
             'project': job['account'],
             'partition': job['partition'],
             'exclusive': exclusive,
@@ -233,12 +236,13 @@ class SlurmSync:
             }
 
         # is this part of an array job?
-        if job['array_job_id'] > 0:
+        if job['array_job_id']['set'] and job['array_job_id']['number'] > 0:
             data.update({"arrayJobId" : job['array_job_id']})
 
         i = 0
         num_acc = 0
         for node in nodelist:
+            print ("Nodelist:",nodelist)
             # begin dict
             resources = {'hostname' : node.strip()}
 
