@@ -213,9 +213,6 @@ class SlurmSync:
         slurminfo = self._exec(command)
         slurminfo = slurminfo + "ENV:\n====\n" + environment
 
-#        print("JobID",job['job_id'])
-#        print("TimeLimit ",job['time_limit'],"\n")
-#        print("Job:",job)
         # build payload
         data = {'jobId' : job['job_id'],
             'user' : job['user_name'],
@@ -242,7 +239,6 @@ class SlurmSync:
         i = 0
         num_acc = 0
         for node in nodelist:
-            print ("Nodelist:",nodelist)
             # begin dict
             resources = {'hostname' : node.strip()}
 
