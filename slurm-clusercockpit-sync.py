@@ -219,7 +219,7 @@ class SlurmSync:
             'cluster' : self.config['clustername'],
             'numNodes' : job['node_count']['number'],
             'numHwthreads' : job['cpus']['number'],
-            'startTime': job['start_time'],
+            'startTime': job['start_time']['number'],
             'walltime': int(job['time_limit']['number']) * 60,
             'project': job['account'],
             'partition': job['partition'],
@@ -377,7 +377,7 @@ class SlurmSync:
                     print("INFO: Job %s: disable_cc_sumbission is set. Continue with next job" % job['job_id'])
                     continue
                 # consider only running jobs
-                if job['job_state'] == "RUNNING":
+                if job['job_state'] == [ "RUNNING" ]:
                     if jobid:
                         if int(job['job_id']) == int(jobid) and not self._jobIdInCC(job['job_id']):
                             self._ccStartJob(job)
