@@ -14,6 +14,14 @@ import json
 import requests
 import re
 
+def extract_nodelist(nodelist):
+    if isinstance(nodelist, dict) and 'list' in nodelist:
+        return nodelist['list']
+    elif isinstance(nodelist, str):
+        return nodelist
+    else:
+        raise ValueError(f"Unsupported nodelist format: {nodelist}")
+
 class CCApi:
     config = {}
     apiurl = ''
@@ -242,17 +250,23 @@ class SlurmSync:
             # begin dict
             resources = {'hostname' : node.strip()}
 
-            # if a job uses a node exclusive, there are some assigned cpus (used by this job)
-            # and some unassigned cpus. In this case, the assigned_cpus are those which have
-            # to be monitored, otherwise use the unassigned cpus. 
-            sockets = job['job_resources']['allocated_nodes'][i]['sockets']
-            hwthreads = []
-            for socket,cores in sockets.items():
-                for cid, state in cores['cores'].items():
-                    if state == 'allocated':
-                        hwthreads.append(int(cid) + int(socket) * self.config['nodes']['cores_per_socket'])
-
-            resources.update({"hwthreads": hwthreads})
+            # Zugriff auf die Knotenressourcen
+            if 'nodes' in job['job_resources'] and 'allocation' in job['job_resources']['nodes']:
+                allocations = job['job_resources']['nodes']['allocation']
+                if i < len(allocations):
+                    alloc = allocations[i]  # Hole die aktuelle Zuweisung
+                    sockets = alloc.get('sockets', [])  # Hole Sockets aus der aktuellen Zuweisung
+                    hwthreads = []
+                    for socket in sockets:
+                        for core in socket.get('cores', []):
+                            if 'ALLOCATED' in core.get('status', []):  # Prüfe den Status
+                                hwthreads.append(core['index'])  # Index hinzufügen
+                    resources.update({"hwthreads": hwthreads})
+                else:
+                    print(f"Warning: Index {i} out of range for node allocations")
+            else:
+                print("Error: Missing 'nodes' or 'allocation' in job['job_resources']")
+                resources.update({"hwthreads": []})
 
             # Get allocated GPUs if some are requested
             if len(job['gres_detail']) > 0:
@@ -331,6 +345,7 @@ class SlurmSync:
         self.ccapi.stopJob(data)
 
     def _convertNodelist(self, nodelist):
+        nodelist = extract_nodelist(nodelist)
         # Use slurm to convert a nodelist with ranges into a comma separated list of unique nodes
         if re.search(self.config['node_regex'], nodelist):
             command = "%s show hostname %s | paste -d, -s" % (self.config['slurm']['scontrol'], nodelist)
