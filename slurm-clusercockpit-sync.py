@@ -119,7 +119,7 @@ class SlurmSync:
     def _jobRunning(self, jobid):
         for job in self.slurmJobData['jobs']:
             if int(job['job_id']) == int(jobid):
-                if job['job_state'] in ['RUNNING', 'COMPLETING']:
+                if job['job_state'][0] in ['RUNNING', 'COMPLETING']:
                     return True
         return False
 
@@ -219,7 +219,7 @@ class SlurmSync:
             'cluster' : self.config['clustername'],
             'numNodes' : job['node_count']['number'],
             'numHwthreads' : job['cpus']['number'],
-            'startTime': job['start_time'],
+            'startTime': job['start_time']['number'],
             'walltime': int(job['time_limit']['number']) * 60,
             'project': job['account'],
             'partition': job['partition'],
@@ -234,7 +234,7 @@ class SlurmSync:
 
         # is this part of an array job?
         if job['array_job_id']['set'] and job['array_job_id']['number'] > 0:
-            data.update({"arrayJobId" : job['array_job_id']})
+            data.update({"arrayJobId" : job['array_job_id']['number']})
 
         i = 0
         num_acc = 0
@@ -288,12 +288,12 @@ class SlurmSync:
         for job in self.slurmJobData['jobs']:
             if job['job_id'] == jobid:
                 jobInSqueue = True
-                jobstate = job['job_state'].lower()
-                endtime = job['end_time']
+                jobstate = job['job_state'][0].lower()
+                endtime = job['end_time']['number']
                 if jobstate not in ['running', 'completed', 'failed', 'cancelled', 'stopped', 'timeout', 'preempted', 'out_of_memory' ]:
                     jobstate = 'failed'
 
-                if int(ccjob['startTime']) >= int(job['end_time']):
+                if int(ccjob['startTime']) >= int(job['end_time']['number']):
                     print("squeue correction")
                     # For some reason (needs to get investigated), failed jobs sometimes report 
                     # an earlier end time in squee than the starting time in CC. If this is the
@@ -304,9 +304,9 @@ class SlurmSync:
         if not jobInSqueue:
             jobsAcctData = self._getAccDataForJob(jobid)['jobs']
             for j in jobsAcctData:
-                if len(j['steps']) > 0 and j['steps'][0]['time']['start'] == ccjob['startTime']:
+                if len(j['steps']) > 0 and j['steps'][0]['time']['start']['number'] == ccjob['startTime']:
                     jobAcctData = j
-            jobstate = jobAcctData['state']['current'].lower()
+            jobstate = jobAcctData['state']['current'][0].lower()
             endtime = jobAcctData['time']['end']
 
             if jobstate not in ['running', 'completed', 'failed', 'cancelled', 'stopped', 'timeout', 'preempted', 'out_of_memory' ]:
@@ -377,7 +377,7 @@ class SlurmSync:
                     print("INFO: Job %s: disable_cc_sumbission is set. Continue with next job" % job['job_id'])
                     continue
                 # consider only running jobs
-                if job['job_state'] == "RUNNING":
+                if job['job_state'] == [ "RUNNING" ]:
                     if jobid:
                         if int(job['job_id']) == int(jobid) and not self._jobIdInCC(job['job_id']):
                             self._ccStartJob(job)
