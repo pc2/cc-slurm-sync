@@ -178,13 +178,13 @@ class SlurmSync:
         nodelist = self._convertNodelist(job['job_resources']['nodes'])
 
         # Exclusive job?
-        if job['shared'] == "none":
+        if job['exclusive'][0] == "true":
             exclusive = 1
         # exclusive to user
-        elif job['shared'] == "user":
+        elif job['exclusive'][0] == "user":
             exclusive = 2
         # exclusive to mcs
-        elif job['shared'] == "mcs":
+        elif job['exclusive'][0] == "mcs":
             exclusive = 3
         # default is shared node
         else:
@@ -256,11 +256,12 @@ class SlurmSync:
                 if i < len(allocations):
                     alloc = allocations[i]  # Hole die aktuelle Zuweisung
                     sockets = alloc.get('sockets', [])  # Hole Sockets aus der aktuellen Zuweisung
+                    numcores = len(sockets[0]['cores'])
                     hwthreads = []
                     for socket in sockets:
                         for core in socket.get('cores', []):
                             if 'ALLOCATED' in core.get('status', []):  # Prüfe den Status
-                                hwthreads.append(core['index'])  # Index hinzufügen
+                                hwthreads.append(core['index'] + socket['index'] * numcores)  # Index hinzufügen
                     resources.update({"hwthreads": hwthreads})
                 else:
                     print(f"Warning: Index {i} out of range for node allocations")
