@@ -178,14 +178,15 @@ class SlurmSync:
         nodelist = self._convertNodelist(job['job_resources']['nodes'])
 
         # Exclusive job?
-        if job['exclusive'][0] == "true":
-            exclusive = 1
-        # exclusive to user
-        elif job['exclusive'][0] == "user":
-            exclusive = 2
-        # exclusive to mcs
-        elif job['exclusive'][0] == "mcs":
-            exclusive = 3
+        if len(job['exclusive']) > 0:
+            if job['exclusive'][0] == "true":
+                exclusive = 1
+            # exclusive to user
+            elif job['exclusive'][0] == "user":
+                exclusive = 2
+            # exclusive to mcs
+            elif job['exclusive'][0] == "mcs":
+                exclusive = 3
         # default is shared node
         else:
             exclusive = 0
