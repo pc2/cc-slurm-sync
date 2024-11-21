@@ -131,10 +131,6 @@ This option is unique to every cluster system. This regex describes the sytax of
 
 Example: `^(n2(lcn|cn|fpga|gpu)[\\d{2,4}\\,\\-\\[\\]]+)+$`
 
-**nodes**
-
-The "cores_per_socket" value is used within the transformation of the slurm data to ClusterCockpit data structure. CC uses rising ids to identify each core. Slurm seperates the cores by socket. So the scipts needs to know, how many cores per socket are available to calculate the cc representation of the allocated resources. 
-
 ## Running the script
 
 Simply run `slurm-clusercockpit-sync.py` inside the same directory which contains the config.json file. A brief help is also available:
