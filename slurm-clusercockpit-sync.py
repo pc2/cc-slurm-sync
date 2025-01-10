@@ -98,7 +98,7 @@ class SlurmSync:
     def _readSlurmData(self):
         if self.debug:
             print("DEBUG: _readSlurmData called")
-        command = "%s --json" % self.config['slurm']['squeue']
+        command = "%s --states R,CG --json" % self.config['slurm']['squeue']
         self.slurmJobData = json.loads(self._exec(command))
 
     def _readCCData(self):
@@ -195,23 +195,28 @@ class SlurmSync:
         environment = ''
         # FIXME sometimes produces utf-8 conversion errors
         environment_filename = "%s/%s/job.%s/environment" % (self.config['slurm']['state_save_location'], hashdir, job['job_id'])
-        try:
-            with open(environment_filename, 'r', encoding='utf-8') as f:
-                environment = f.read()
-        except FileNotFoundError:
-            environment = 'NO ENV'
-        except UnicodeDecodeError:
-            environment = 'UNICODE_DECODE_ERROR'
-
-        # truncate environment to 50.000 chars. Otherwise it might not fit into the
-        # Database field together with the job script etc.
-        environment = environment[:50000]
+        for enc in ['utf-8', 'utf-16', 'utf-32']:
+            if environment == '' or environment == 'UNICODE_DECODE_ERROR':
+                try:
+                    with open(environment_filename, 'r', encoding=enc) as f:
+                        environment = f.read()
+                except FileNotFoundError:
+                    environment = 'NO ENV'
+                except UnicodeDecodeError:
+                    environment = 'UNICODE_DECODE_ERROR'
+                except UnicodeError:
+                    environment = 'UNICODE_DECODE_ERROR'
 
 
         # get additional info from slurm and add environment
-        command = "%s show job %s" % (self.config['slurm']['scontrol'], job['job_id'])
+        command = "%s show job %s --detail" % (self.config['slurm']['scontrol'], job['job_id'])
         slurminfo = self._exec(command)
         slurminfo = slurminfo + "ENV:\n====\n" + environment
+        # truncate environment. Otherwise it might not fit into the
+        # Database field together with the job script etc.
+        if len(slurminfo) > 50000:
+            slurminfo = slurminfo[:50000]
+            slurminfo = slurminfo + "\n === TRUNCATED ==="
 
         # build payload
         data = {'jobId' : job['job_id'],
