@@ -13,6 +13,7 @@ import subprocess
 import json
 import requests
 import re
+import shutil
 
 class CCApi:
     config = {}
@@ -193,20 +194,21 @@ class SlurmSync:
             jobscript = 'NO JOBSCRIPT'
 
         environment = ''
-        # FIXME sometimes produces utf-8 conversion errors
         environment_filename = "%s/%s/job.%s/environment" % (self.config['slurm']['state_save_location'], hashdir, job['job_id'])
-        for enc in ['utf-8', 'utf-16', 'utf-32']:
-            if environment == '' or environment == 'UNICODE_DECODE_ERROR':
-                try:
-                    with open(environment_filename, 'r', encoding=enc) as f:
-                        environment = f.read()
-                except FileNotFoundError:
-                    environment = 'NO ENV'
-                except UnicodeDecodeError:
-                    environment = 'UNICODE_DECODE_ERROR'
-                except UnicodeError:
-                    environment = 'UNICODE_DECODE_ERROR'
+        try:
+            with open(environment_filename, 'rb') as f: 
+                environment = f.read()
+        except FileNotFoundError:
+            environment = 'NO ENV'
+        except UnicodeDecodeError:
+            environment = 'UNICODE_DECODE_ERROR'
 
+        if type(environment) is not str:
+            environment = environment.decode("utf-8", "ignore")
+
+        if environment == 'UNICODE_DECODE_ERROR':
+            print("WARNING: UNICODE_DECODE_ERROR in Job %s, placing copy of environment file to /var/spool/SLURM/faultyEnvironments." % job['job_id'])
+            shutil.copy2(environment_filename, '/var/spool/SLURM/faultyEnvironments/' + str(job['job_id']))
 
         # get additional info from slurm and add environment
         command = "%s show job %s --detail" % (self.config['slurm']['scontrol'], job['job_id'])
