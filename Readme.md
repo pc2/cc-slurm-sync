@@ -23,7 +23,7 @@ should help to track the changes according to each slurm version. If you
 are running slurm version 23.11.02 you have to checkout the branch slurm-23-11.
 The master branch will be the development branch for general functionalities.
 Version specific changes will be merged to the corresponding version branch. At 
-this point in time, the main branch tracks the **24.05** Version of Slurm. 
+this point in time, the main branch tracks the **24.11** Version of Slurm. 
 
 ## Running slurm < 22.05
 
