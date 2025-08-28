@@ -1,7 +1,7 @@
 # DEPRECATED
 
 This script was written some years ago with the aim to sync jobs from slurm
-to cluster cockpit. Meanwhile, a go bases slurm sync tool 
+to cluster cockpit. Meanwhile, a go based slurm sync tool 
 [cc-slurm-adapter](https://github.com/ClusterCockpit/cc-slurm-adapter)
 has been implemented. We have tested the tool, found it to be good, and will 
 therefore discontinue maintenance of this script.
